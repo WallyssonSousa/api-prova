@@ -1,3 +1,4 @@
+from models.AtividadeModel import Atividade
 import requests
 
 BASE_URL = "https://gestao-escolar-api-3uu5.onrender.com/"
@@ -41,12 +42,14 @@ def turma_existe(turma_id):
     res = requests.get(f"{BASE_URL}/turmas/{turma_id}", headers=headers)
     return res.status_code == 200
 
+
 def aluno_existe(aluno_id):
     headers = get_headers()
     if not headers:
         return False
     res = requests.get(f"{BASE_URL}/alunos/{aluno_id}", headers=headers)
     return res.status_code == 200
+
 
 def get_alunos_da_turma(turma_id):
     headers = get_headers()
@@ -57,3 +60,20 @@ def get_alunos_da_turma(turma_id):
     if res.status_code == 200:
         return res.json()  
     return []
+
+
+def atividade_existe(atividade_id):
+    return Atividade.query.get(atividade_id) is not None
+
+
+def get_turma_nome(turma_id):
+    headers = get_headers()
+    if not headers:
+        return None
+
+    res = requests.get(f"{BASE_URL}/turmas/{turma_id}", headers=headers)
+    if res.status_code == 200:
+        return res.json().get("nome")
+    return None
+
+

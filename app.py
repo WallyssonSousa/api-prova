@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from config import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
 from database import db
 from routes.AtividadeRoute import atividade_bp
@@ -19,7 +19,7 @@ with app.app_context():
 
 @app.route('/', methods=['GET'])
 def index():
-    return "Welcome to the Flask app!"
+    return jsonify({"message": "Bem-vindo à API de adicionar prova"})
 
 if __name__ == '__main__':
     app.run(port=5002, debug=True)

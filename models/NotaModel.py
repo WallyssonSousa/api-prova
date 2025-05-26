@@ -5,3 +5,4 @@ class Nota(db.Model):
     aluno_id = db.Column(db.Integer, nullable=False)
     atividade_id = db.Column(db.Integer, db.ForeignKey('atividade.id'), nullable=False)
     nota = db.Column(db.Float, nullable=False)
+    

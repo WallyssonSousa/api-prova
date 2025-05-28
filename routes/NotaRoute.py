@@ -7,6 +7,7 @@ from services.GestaoEscolarService import aluno_existe, atividade_existe
 nota_bp = Blueprint("nota_bp", __name__)
 
 @nota_bp.route("/notas", methods=["GET"])
+@jwt_required()
 def get_notas():
     notas = Nota.query.all()
     resultado = []
@@ -21,9 +22,13 @@ def get_notas():
 
     return jsonify(resultado), 200
 
-
 @nota_bp.route("/notas", methods=["POST"])
+@jwt_required()
 def create_nota():
+    jwt_claims = get_jwt()
+    if jwt_claims.get("role") != "admin":
+        return jsonify({"erro": "Acesso negado: apenas administradores podem criar salas."}), 403
+    
     data = request.get_json()
 
     required_fields = ["aluno_id", "atividade_id", "nota"]
@@ -48,9 +53,8 @@ def create_nota():
 
     return jsonify({"message": "Nota criada com sucesso"}), 201
 
-
-
 @nota_bp.route("/notas/<int:nota_id>", methods=["GET"])
+@jwt_required()
 def get_nota(nota_id):
     nota = Nota.query.get(nota_id)
     if not nota:
@@ -64,7 +68,12 @@ def get_nota(nota_id):
     }), 2007
 
 @nota_bp.route("/notas/<int:nota_id>", methods=["PUT"])
+@jwt_required()
 def update_nota(nota_id):
+    jwt_claims = get_jwt()
+    if jwt_claims.get("role") != "admin":
+        return jsonify({"erro": "Acesso negado: apenas administradores podem criar salas."}), 403
+    
     nota = Nota.query.get(nota_id)
     if not nota:
         return jsonify({"error": "Nota não encontrada"}), 404
@@ -85,7 +94,12 @@ def update_nota(nota_id):
     return jsonify({"message": "Nota atualizada com sucesso"}), 200
 
 @nota_bp.route("/notas/<int:nota_id>", methods=["DELETE"])
-def delete_nota(nota_id):  
+@jwt_required()
+def delete_nota(nota_id):
+    jwt_claims = get_jwt()
+    if jwt_claims.get("role") != "admin":
+        return jsonify({"erro": "Acesso negado: apenas administradores podem criar salas."}), 403
+    
     nota = Nota.query.get(nota_id)
     if not nota:
         return jsonify({"error": "Nota não encontrada"}), 404

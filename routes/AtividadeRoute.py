@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify
 from models.AtividadeModel import Atividade
 from flask import request
+from flask_jwt_extended import jwt_required, get_jwt
 from database import db
 from services.GestaoEscolarService import get_turma_nome, turma_existe
 from datetime import datetime
@@ -8,6 +9,7 @@ from datetime import datetime
 atividade_bp = Blueprint("atividade_bp", __name__)
 
 @atividade_bp.route("/atividades", methods=["GET"])
+@jwt_required()
 def get_atividades():
     atividades = Atividade.query.all()
     resultado = []
@@ -34,6 +36,7 @@ def get_atividades():
     return jsonify(resultado), 200
 
 @atividade_bp.route("/atividades/<int:atividade_id>", methods=["GET"])
+@jwt_required()
 def get_atividade(atividade_id):
     atividade = Atividade.query.get(atividade_id)
     if not atividade:
@@ -59,9 +62,13 @@ def get_atividade(atividade_id):
 
     return jsonify(resultado), 200
 
-
 @atividade_bp.route("/atividades", methods=["POST"])
+@jwt_required()
 def create_atividade():
+    jwt_claims = get_jwt()
+    if jwt_claims.get("role") != "admin":
+        return jsonify({"erro": "Acesso negado: apenas administradores podem criar salas."}), 403
+    
     data = request.get_json()
 
     if not turma_existe(data["turma_id"]):
@@ -89,7 +96,12 @@ def create_atividade():
 
 
 @atividade_bp.route("/atividades/<int:atividade_id>", methods=["PUT"])
+@jwt_required()
 def update_atividade(atividade_id):
+    jwt_claims = get_jwt()
+    if jwt_claims.get("role") != "admin":
+        return jsonify({"erro": "Acesso negado: apenas administradores podem criar salas."}), 403
+    
     data = request.get_json() 
     atividade = Atividade.query.get(atividade_id)
 
@@ -116,7 +128,12 @@ def update_atividade(atividade_id):
     return jsonify({"message": "Atividade atualizada com sucesso"}), 200
 
 @atividade_bp.route("/atividades/<int:atividade_id>", methods=["DELETE"])
+@jwt_required()
 def delete_atividade(atividade_id):
+    jwt_claims = get_jwt()
+    if jwt_claims.get("role") != "admin":
+        return jsonify({"erro": "Acesso negado: apenas administradores podem criar salas."}), 403
+    
     atividade = Atividade.query.get(atividade_id)
 
     if not atividade:

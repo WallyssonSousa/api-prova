@@ -25,7 +25,7 @@ services:
         CMD ["flask", "db", "upgrade"]
         # Comando para rodar a aplicação com auto-reload
         CMD ["python", "test.py"]
-        CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--reload", "--port=5002"]
+        CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--reload"]
     image: reserva-sala-api:1.0
     ports:
       - "5002:5002"

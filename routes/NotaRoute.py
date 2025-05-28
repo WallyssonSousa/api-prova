@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify
 from models.NotaModel import Nota
 from database import db
 from flask import request
+from flask_jwt_extended import jwt_required, get_jwt
 from services.GestaoEscolarService import aluno_existe, atividade_existe
 
 nota_bp = Blueprint("nota_bp", __name__)

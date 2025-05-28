@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+
+  #API
+  api-prova:
+    build:
+      context: .
+      dockerfile_inline: |
+        # Imagem base oficial do Python
+        FROM python:3.11-slim
+        # Diretório de trabalho dentro do container
+        WORKDIR /app
+        # Copia os arquivos da raiz "./" para o container em "./app"
+        COPY . /app
+        # Instala as dependências do projeto
+        RUN pip install --upgrade pip
+        RUN pip install --no-cache-dir -r requirements.txt
+        # Evitar buffer
+        ENV PYTHONUNBUFFERED=1
+        # Exposição da porta que o Flask usa
+        EXPOSE 5001
+        CMD ["flask", "db", "init"]
+        CMD ["flask", "db", "migrate", "-m", '"Inicialização do banco de dados"']
+        CMD ["flask", "db", "upgrade"]
+        # Comando para rodar a aplicação com auto-reload
+        CMD ["python", "test.py"]
+        CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--reload", "--port=5002"]
+    image: reserva-sala-api:1.0
+    ports:
+      - "5002:5002"
+    environment:
+      FLASK_ENV: ${FLASK_ENV}
+      FLASK_APP: ${FLASK_APP}
+    volumes:
+      - .:/app
+    depends_on:
+      - db-api-prova
+
+  #Banco de Dados
+  db-api-prova:
+    image: postgres:15
+    restart: always
+    ports:
+      - "54322:5432"
+    environment:
+      POSTGRES_DB: db-api-prova
+      POSTGRES_USER: api-prova
+      POSTGRES_PASSWORD: 12345678
+    volumes:
+      - db_data_api_prova:/var/lib/postgresql/data
+
+volumes:
+  db_data_api_prova:
